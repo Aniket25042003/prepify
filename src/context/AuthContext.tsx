@@ -47,10 +47,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  const getURL = () => {
+    const url = import.meta.env.VITE_SITE_URL || 'http://localhost:5173/'
+    return url.startsWith('http') ? url : `https://${url}`
+  }
+
   const signInWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
+        options: {
+          redirectTo: getURL()
+        }
       })
       if (error) throw error
     } catch (error) {
