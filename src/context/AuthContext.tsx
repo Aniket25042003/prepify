@@ -6,7 +6,6 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
-  signInWithGoogle: () => Promise<void>
   signInWithEmail: (email: string, password: string) => Promise<void>
   signUpWithEmail: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
@@ -47,21 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signInWithGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: 'https://kcijmwltuoztxjuwcjqc.supabase.co/auth/v1/callback',
-        }
-      })
-      if (error) throw error
-    } catch (error) {
-      console.error('Error signing in with Google:', error)
-      throw error
-    }
-  }
-
   const signInWithEmail = async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -101,7 +85,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     session,
     loading,
-    signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,
     signOut,
