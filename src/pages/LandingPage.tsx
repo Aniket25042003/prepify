@@ -95,11 +95,11 @@ export function LandingPage() {
                 className="disabled:opacity-50"
                 color="rgb(168, 85, 247)"
               >
-                {loading ? (
-                  <div className="spinner-3d mx-auto"></div>
-                ) : (
-                  'Get Started'
-                )}
+                    {loading ? (
+                      <div className="spinner-3d mx-auto"></div>
+                    ) : (
+                      'Get Started'
+                    )}
               </StarBorder>
             </div>
           </nav>
@@ -249,7 +249,7 @@ export function LandingPage() {
               color="rgb(168, 85, 247)"
             >
               <div className="px-6">
-                Start Your Journey Today
+              Start Your Journey Today
               </div>
             </StarBorder>
           </div>

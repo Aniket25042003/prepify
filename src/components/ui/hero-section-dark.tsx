@@ -100,12 +100,12 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               <div className="items-center justify-center gap-x-3 space-y-3 sm:flex sm:space-y-0">
                 <StarBorder
                   as="button"
-                  onClick={ctaAction}
+                      onClick={ctaAction}
                   className="inline-flex text-center group items-center justify-center transition-all"
                   color="rgb(168, 85, 247)"
-                >
+                    >
                   <div className="px-6">
-                    {ctaText}
+                      {ctaText}
                   </div>
                 </StarBorder>
               </div>

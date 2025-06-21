@@ -265,8 +265,8 @@ export function ChatPage() {
                     className="disabled:opacity-50 disabled:cursor-not-allowed mx-auto"
                   >
                     <div className="flex items-center space-x-2 px-4">
-                      <Play className="h-5 w-5" />
-                      <span>Begin Interview</span>
+                    <Play className="h-5 w-5" />
+                    <span>Begin Interview</span>
                     </div>
                   </StarBorder>
 
@@ -319,8 +319,8 @@ export function ChatPage() {
                         color={state.isRecording ? "rgb(239, 68, 68)" : "rgb(34, 197, 94)"}
                       >
                         <div className="flex items-center justify-center space-x-2">
-                          {state.isRecording ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-                          <span>{state.isRecording ? 'Pause' : 'Resume'}</span>
+                        {state.isRecording ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                        <span>{state.isRecording ? 'Pause' : 'Resume'}</span>
                         </div>
                       </StarBorder>
 
@@ -331,8 +331,8 @@ export function ChatPage() {
                         color="rgb(100, 116, 139)"
                       >
                         <div className="flex items-center justify-center space-x-2">
-                          {state.isVideoEnabled ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
-                          <span>{state.isVideoEnabled ? 'Turn Off Video' : 'Turn On Video'}</span>
+                        {state.isVideoEnabled ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+                        <span>{state.isVideoEnabled ? 'Turn Off Video' : 'Turn On Video'}</span>
                         </div>
                       </StarBorder>
 

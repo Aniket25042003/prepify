@@ -159,8 +159,8 @@ export function Dashboard() {
                   color="rgb(168, 85, 247)"
                 >
                   <div className="flex items-center space-x-2">
-                    <LogOut className="h-4 w-4" />
-                    <span>Sign Out</span>
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
                   </div>
                 </StarBorder>
               </div>
@@ -345,8 +345,8 @@ export function Dashboard() {
                 className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center justify-center space-x-2">
-                  <MessageCircle className="h-5 w-5" />
-                  <span>Start Interview Practice</span>
+                <MessageCircle className="h-5 w-5" />
+                <span>Start Interview Practice</span>
                 </div>
               </StarBorder>
             </div>
