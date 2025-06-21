@@ -12,8 +12,8 @@
     - Returns tokens for client-side LiveKit connection
 */
 
-import { createClient } from 'npm:@supabase/supabase-js@2'
-import { AccessToken } from 'npm:livekit-server-sdk@2'
+import { createClient } from 'npm:@supabase/supabase-js'
+import { AccessToken } from 'npm:livekit-server-sdk'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
