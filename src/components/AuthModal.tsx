@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useEffect } from 'react'
-import { X, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react'
+import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { StarBorder } from './ui/star-border'
 
@@ -17,7 +17,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -39,16 +38,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    setSuccess(false)
 
     try {
       if (isSignUp) {
         await signUpWithEmail(email, password)
-        setSuccess(true) // Show success message on sign up
       } else {
         await signInWithEmail(email, password)
-        onClose()
       }
+      onClose()
     } catch (err) {
       const error = err as Error
       setError(error.message || 'Authentication failed')
@@ -86,105 +83,88 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <X className="h-5 w-5" />
         </button>
 
-        {success ? (
-          <div className="text-center animate-fade-in">
-            <CheckCircle className="h-16 w-16 mx-auto text-green-400 mb-4" />
-            <h2 className="text-2xl font-bold font-serif mb-2 text-gradient">
-              Check Your Inbox
-            </h2>
-            <p className="text-slate-300 mb-6">
-              We've sent a confirmation link to <strong>{email}</strong>. Please click the link to complete your registration.
-            </p>
-            <StarBorder as="button" onClick={onClose}>
-              Close
-            </StarBorder>
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold font-serif mb-2 text-gradient">
+            {isSignUp ? 'Join the Journey' : 'Welcome Back'}
+          </h2>
+          <p className="text-slate-400">
+            {isSignUp ? 'Create your account to start practicing interviews' : 'Sign in to continue your interview preparation'}
+          </p>
+        </div>
+
+        {error && (
+          <div className="glass rounded-lg p-3 mb-6 border border-red-500/30 animate-fade-in bg-red-500/10">
+            <p className="text-red-400 text-sm">{error}</p>
           </div>
-        ) : (
-          <>
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold font-serif mb-2 text-gradient">
-                {isSignUp ? 'Join the Journey' : 'Welcome Back'}
-              </h2>
-              <p className="text-slate-400">
-                {isSignUp ? 'Create your account to start practicing interviews' : 'Sign in to continue your interview preparation'}
-              </p>
-            </div>
-
-            {error && (
-              <div className="glass rounded-lg p-3 mb-6 border border-red-500/30 animate-fade-in bg-red-500/10">
-                <p className="text-red-400 text-sm">{error}</p>
-              </div>
-            )}
-
-            <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="form-input w-full pl-10 pr-4 py-3 text-white placeholder-slate-400 rounded-lg interactive"
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="form-input w-full pl-10 pr-12 py-3 text-white placeholder-slate-400 rounded-lg interactive"
-                    placeholder="Enter your password"
-                    required
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
-              </div>
-
-              <StarBorder
-                as="button"
-                type="submit"
-                disabled={loading}
-                className="w-full disabled:opacity-50"
-              >
-                {loading ? (
-                  <div className="spinner-3d mx-auto"></div>
-                ) : (
-                  isSignUp ? 'Create Account' : 'Sign In'
-                )}
-              </StarBorder>
-            </form>
-
-            <div className="text-center">
-              <StarBorder
-                as="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-sm"
-                color="rgb(168, 85, 247)"
-              >
-                {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-              </StarBorder>
-            </div>
-          </>
         )}
+
+        <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="form-input w-full pl-10 pr-4 py-3 text-white placeholder-slate-400 rounded-lg interactive"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="form-input w-full pl-10 pr-12 py-3 text-white placeholder-slate-400 rounded-lg interactive"
+                placeholder="Enter your password"
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+
+          <StarBorder
+            as="button"
+            type="submit"
+            disabled={loading}
+            className="w-full disabled:opacity-50"
+          >
+            {loading ? (
+              <div className="spinner-3d mx-auto"></div>
+            ) : (
+              isSignUp ? 'Create Account' : 'Sign In'
+            )}
+          </StarBorder>
+        </form>
+
+        <div className="text-center">
+          <StarBorder
+            as="button"
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="text-sm"
+            color="rgb(168, 85, 247)"
+          >
+            {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+          </StarBorder>
+        </div>
       </div>
     </div>
   )
