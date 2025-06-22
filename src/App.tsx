@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { LandingPage } from './pages/LandingPage'
 import { Dashboard } from './pages/Dashboard'
 import { ChatPage } from './pages/ChatPage'
+import { AuthCallback } from './pages/AuthCallback'
 import { supabase } from './lib/supabase'
 
 function AppContent() {
@@ -15,8 +16,8 @@ function AppContent() {
   useEffect(() => {
     // Handle auth state changes and redirects
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        // Redirect to dashboard after successful sign in
+      if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
+        // Only redirect to dashboard if email is verified
         navigate('/dashboard')
       }
     })
@@ -27,6 +28,7 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route 
         path="/dashboard" 
         element={
