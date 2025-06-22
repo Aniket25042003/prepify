@@ -16,8 +16,8 @@ function AppContent() {
   useEffect(() => {
     // Handle auth state changes and redirects
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
-        // Only redirect to dashboard if email is verified
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Redirect to dashboard on successful sign in
         navigate('/dashboard')
       }
     })

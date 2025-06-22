@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { supabase, InterviewSession } from '../lib/supabase'
 import { StarBorder } from '../components/ui/star-border'
-import { EmailVerificationBanner } from '../components/EmailVerificationBanner'
 
 export function Dashboard() {
   const { user, signOut } = useAuth()
@@ -60,12 +59,6 @@ export function Dashboard() {
   }
 
   const startInterview = () => {
-    // Check if email is verified before allowing interview
-    if (!user?.email_confirmed_at) {
-      alert('Please verify your email address before starting an interview.')
-      return
-    }
-
     if (formData.role && formData.company && formData.interviewType && formData.resume && formData.jobDescription) {
       const params = new URLSearchParams({
         role: formData.role,
@@ -157,9 +150,6 @@ export function Dashboard() {
                   <div className="flex items-center space-x-2">
                     <User className="h-4 w-4 text-purple-400" />
                     <span className="text-sm">{user?.user_metadata?.full_name || user?.email}</span>
-                    {user?.email_confirmed_at && (
-                      <div className="w-2 h-2 bg-green-400 rounded-full" title="Email verified" />
-                    )}
                   </div>
                 </div>
                 <StarBorder
@@ -179,9 +169,6 @@ export function Dashboard() {
         </header>
 
         <main className="container mx-auto px-6 py-12">
-          {/* Email Verification Banner */}
-          <EmailVerificationBanner />
-
           {/* Welcome Section */}
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold font-serif mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200 float">
@@ -354,17 +341,12 @@ export function Dashboard() {
               <StarBorder
                 as="button"
                 onClick={startInterview}
-                disabled={!isFormValid || !user?.email_confirmed_at}
+                disabled={!isFormValid}
                 className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center justify-center space-x-2">
                 <MessageCircle className="h-5 w-5" />
-                <span>
-                  {!user?.email_confirmed_at 
-                    ? 'Verify Email to Start Interview' 
-                    : 'Start Interview Practice'
-                  }
-                </span>
+                <span>Start Interview Practice</span>
                 </div>
               </StarBorder>
             </div>

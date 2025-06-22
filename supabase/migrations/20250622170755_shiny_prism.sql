@@ -54,22 +54,39 @@ CREATE POLICY "Users can insert own profile"
   TO authenticated
   WITH CHECK (auth.uid() = id);
 
--- Function to handle new user signup
+-- Improved function with better error handling for Google OAuth
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS trigger AS $$
 BEGIN
+  -- Insert profile with better error handling and Google OAuth support
   INSERT INTO user_profiles (id, email, full_name, email_verified)
   VALUES (
     NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.email, ''),
+    COALESCE(
+      NEW.raw_user_meta_data->>'full_name', 
+      NEW.raw_user_meta_data->>'name',
+      NEW.raw_user_meta_data->>'display_name',
+      SPLIT_PART(COALESCE(NEW.email, ''), '@', 1)
+    ),
     COALESCE(NEW.email_confirmed_at IS NOT NULL, false)
-  );
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = COALESCE(EXCLUDED.full_name, user_profiles.full_name),
+    email_verified = EXCLUDED.email_verified,
+    updated_at = now();
+  
   RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Log the error but don't prevent user creation
+    RAISE LOG 'Error creating user profile for user %: %', NEW.id, SQLERRM;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger to automatically create profile on signup
+-- Recreate the trigger
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users

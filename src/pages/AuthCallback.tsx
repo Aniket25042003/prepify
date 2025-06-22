@@ -1,6 +1,6 @@
 /**
  * Auth Callback Page
- * Handles email verification and password reset callbacks from Supabase
+ * Handles Google OAuth callback from Supabase
  */
 
 import React, { useEffect, useState } from 'react'
@@ -9,14 +9,11 @@ import { CheckCircle, AlertCircle, Loader } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { StarBorder } from '../components/ui/star-border'
 
-type CallbackType = 'email-verification' | 'password-reset' | 'unknown'
-
 export function AuthCallback() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('')
-  const [callbackType, setCallbackType] = useState<CallbackType>('unknown')
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -25,89 +22,74 @@ export function AuthCallback() {
         const hashParams = new URLSearchParams(window.location.hash.substring(1))
         const accessToken = hashParams.get('access_token')
         const refreshToken = hashParams.get('refresh_token')
-        const type = hashParams.get('type')
+        const error = hashParams.get('error')
+        const errorDescription = hashParams.get('error_description')
 
-        // Also check search params for type
-        const searchType = searchParams.get('type')
-        const finalType = type || searchType
+        // Also check search params
+        const searchError = searchParams.get('error')
+        const searchCode = searchParams.get('code')
 
-        // Determine callback type
-        if (finalType === 'signup' || finalType === 'email_confirmation') {
-          setCallbackType('email-verification')
-        } else if (finalType === 'recovery') {
-          setCallbackType('password-reset')
+        // Handle OAuth errors first
+        if (error || searchError) {
+          const errorMsg = errorDescription || error || searchError || 'OAuth authentication failed'
+          throw new Error(errorMsg)
         }
 
+        // Handle OAuth code flow (newer Supabase versions)
+        if (searchCode && !accessToken) {
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(searchCode)
+          
+          if (exchangeError) {
+            throw exchangeError
+          }
+
+          if (data.user) {
+            setStatus('success')
+            setMessage('Google sign-in successful! Redirecting to dashboard...')
+            
+            setTimeout(() => {
+              navigate('/dashboard')
+            }, 2000)
+            return
+          }
+        }
+
+        // Handle direct token flow (legacy)
         if (accessToken && refreshToken) {
           // Set the session using the tokens
-          const { data, error } = await supabase.auth.setSession({
+          const { data, error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
           })
 
-          if (error) {
-            throw error
+          if (sessionError) {
+            throw sessionError
           }
 
           if (data.user) {
-            if (callbackType === 'email-verification') {
-              setStatus('success')
-              setMessage('Email verified successfully! You can now access your account.')
-              
-              // Redirect to dashboard after a delay
-              setTimeout(() => {
-                navigate('/dashboard')
-              }, 3000)
-            } else if (callbackType === 'password-reset') {
-              setStatus('success')
-              setMessage('You can now set a new password.')
-              
-              // Redirect to a password reset form or dashboard
-              setTimeout(() => {
-                navigate('/dashboard') // You might want to create a password reset form page
-              }, 2000)
-            } else {
-              setStatus('success')
-              setMessage('Authentication successful!')
-              
-              setTimeout(() => {
-                navigate('/dashboard')
-              }, 2000)
-            }
+            setStatus('success')
+            setMessage('Google sign-in successful! Redirecting to dashboard...')
+            
+            setTimeout(() => {
+              navigate('/dashboard')
+            }, 2000)
+            return
           } else {
-            throw new Error('No user data received')
-          }
-        } else {
-          // Handle cases where tokens are not present
-          const error = hashParams.get('error')
-          const errorDescription = hashParams.get('error_description')
-          
-          if (error) {
-            throw new Error(errorDescription || error)
-          } else {
-            throw new Error('Invalid callback parameters')
+            throw new Error('No user data received from session')
           }
         }
+
+        // If we get here, no valid tokens or code were found
+        throw new Error('No valid authentication data found. Please try signing in again.')
+
       } catch (error) {
-        console.error('Auth callback error:', error)
         setStatus('error')
         setMessage(error instanceof Error ? error.message : 'Authentication failed')
       }
     }
 
     handleAuthCallback()
-  }, [navigate, searchParams, callbackType])
-
-  const getTitle = () => {
-    switch (callbackType) {
-      case 'email-verification':
-        return status === 'success' ? 'Email Verified!' : 'Verifying Email...'
-      case 'password-reset':
-        return status === 'success' ? 'Password Reset Ready' : 'Processing Reset...'
-      default:
-        return status === 'success' ? 'Authentication Successful' : 'Authenticating...'
-    }
-  }
+  }, [navigate, searchParams])
 
   const getIcon = () => {
     if (status === 'loading') {
@@ -146,7 +128,7 @@ export function AuthCallback() {
           </div>
           
           <h1 className="text-2xl font-bold font-serif mb-4 text-gradient">
-            {getTitle()}
+            {status === 'success' ? 'Google Sign-in Successful!' : status === 'loading' ? 'Processing Google Sign-in...' : 'Authentication Error'}
           </h1>
           
           <p className="text-slate-300 mb-6">
@@ -169,10 +151,7 @@ export function AuthCallback() {
           {status === 'success' && (
             <div className="glass rounded-lg p-4">
               <p className="text-slate-400 text-sm">
-                {callbackType === 'email-verification' 
-                  ? 'Redirecting to your dashboard...'
-                  : 'Redirecting...'
-                }
+                Redirecting to your dashboard...
               </p>
             </div>
           )}
