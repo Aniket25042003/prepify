@@ -1,6 +1,6 @@
 /**
  * Auth Callback Page
- * Handles Google OAuth callback from Supabase
+ * Handles Google and GitHub OAuth callback from Supabase
  */
 
 import React, { useEffect, useState } from 'react'
@@ -45,7 +45,7 @@ export function AuthCallback() {
 
           if (data.user) {
             setStatus('success')
-            setMessage('Google sign-in successful! Redirecting to dashboard...')
+            setMessage('Sign-in successful! Redirecting to dashboard...')
             
             setTimeout(() => {
               navigate('/dashboard')
@@ -68,7 +68,7 @@ export function AuthCallback() {
 
           if (data.user) {
             setStatus('success')
-            setMessage('Google sign-in successful! Redirecting to dashboard...')
+            setMessage('Sign-in successful! Redirecting to dashboard...')
             
             setTimeout(() => {
               navigate('/dashboard')
@@ -128,7 +128,7 @@ export function AuthCallback() {
           </div>
           
           <h1 className="text-2xl font-bold font-serif mb-4 text-gradient">
-            {status === 'success' ? 'Google Sign-in Successful!' : status === 'loading' ? 'Processing Google Sign-in...' : 'Authentication Error'}
+            {status === 'success' ? 'Sign-in Successful!' : status === 'loading' ? 'Processing Sign-in...' : 'Authentication Error'}
           </h1>
           
           <p className="text-slate-300 mb-6">

@@ -2,13 +2,15 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { 
-  signInWithGoogle, 
+  signInWithGoogle,
+  signInWithGitHub,
   signOut as authSignOut
 } from '../lib/auth'
 import { AuthState, AuthResponse } from '../types/auth'
 
 interface AuthContextType extends AuthState {
   signInWithGoogle: () => Promise<AuthResponse>
+  signInWithGitHub: () => Promise<AuthResponse>
   signOut: () => Promise<AuthResponse>
 }
 
@@ -53,6 +55,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return response
   }
 
+  const handleSignInWithGitHub = async (): Promise<AuthResponse> => {
+    const response = await signInWithGitHub()
+    return response
+  }
+
   const signOut = async (): Promise<AuthResponse> => {
     const response = await authSignOut()
     return response
@@ -64,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     profile,
     loading,
     signInWithGoogle: handleSignInWithGoogle,
+    signInWithGitHub: handleSignInWithGitHub,
     signOut,
   }
 

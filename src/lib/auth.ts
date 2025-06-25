@@ -1,6 +1,6 @@
 /**
- * Google OAuth Authentication service
- * Handles secure user authentication using Supabase and Google OAuth
+ * OAuth Authentication service
+ * Handles secure user authentication using Supabase and Google/GitHub OAuth
  */
 
 import { supabase } from './supabase'
@@ -34,7 +34,7 @@ export async function signInWithGoogle(): Promise<AuthResponse> {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `https://tpgzxparxxyxbmpsfwkt.supabase.co/auth/v1/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -60,6 +60,40 @@ export async function signInWithGoogle(): Promise<AuthResponse> {
     return {
       success: false,
       error: 'Failed to initiate Google sign-in. Please try again.'
+    }
+  }
+}
+
+/**
+ * Sign in with GitHub OAuth
+ */
+export async function signInWithGitHub(): Promise<AuthResponse> {
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
+
+    if (error) {
+      return {
+        success: false,
+        error: mapAuthError(error)
+      }
+    }
+
+    // OAuth redirect will handle the actual sign-in
+    return {
+      success: true,
+      message: 'Redirecting to GitHub...'
+    }
+
+  } catch (error) {
+    console.error('GitHub sign-in error:', error)
+    return {
+      success: false,
+      error: 'Failed to initiate GitHub sign-in. Please try again.'
     }
   }
 }
