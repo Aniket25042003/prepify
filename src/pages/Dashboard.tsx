@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Clock, LogOut, MessageCircle, Trash2, Calendar, User, BookOpen, Play, TrendingUp, Target, Award, Zap, Code, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { supabase, InterviewSession } from '../lib/supabase'
+import { supabase, InterviewSession, CodingSession } from '../lib/supabase'
 import { StarBorder } from '../components/ui/star-border'
 
 const codingPlatforms = [
@@ -69,6 +69,7 @@ export function Dashboard() {
     additionalNotes: ''
   })
   const [interviewSessions, setInterviewSessions] = useState<InterviewSession[]>([])
+  const [codingSessions, setCodingSessions] = useState<CodingSession[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -89,6 +90,15 @@ export function Dashboard() {
       if (interviewError) throw interviewError
       setInterviewSessions(interviewData || [])
 
+      // Load coding sessions
+      const { data: codingData, error: codingError } = await supabase
+        .from('coding_sessions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if (codingError) throw codingError
+      setCodingSessions(codingData || [])
 
     } catch (error) {
       console.error('Error loading data:', error)
@@ -127,7 +137,14 @@ export function Dashboard() {
 
       if (error) throw error
 
-      // Note: Coding session recorded but not tracked in UI
+      // Update local state to reflect the new coding session
+      setCodingSessions(prev => [{
+        id: crypto.randomUUID(),
+        user_id: user?.id || '',
+        platform_name: platform.name,
+        platform_url: platform.url,
+        created_at: new Date().toISOString()
+      }, ...prev])
 
       // Open the platform in a new tab
       window.open(platform.url, '_blank')
@@ -180,6 +197,7 @@ export function Dashboard() {
 
   // Calculate metrics
   const totalInterviews = interviewSessions.length
+  const totalCodingSessions = codingSessions.length
   const avgDuration = totalInterviews > 0 ? Math.round(interviewSessions.reduce((acc, session) => acc + session.duration, 0) / totalInterviews) : 0
   const interviewTypes = new Set(interviewSessions.map(s => s.interview_type)).size
   
@@ -264,7 +282,7 @@ export function Dashboard() {
           </div>
 
           {/* Comprehensive Metrics */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
             <div className="glass-strong rounded-xl p-6 card-3d interactive animate-fade-in stagger-1">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -313,6 +331,17 @@ export function Dashboard() {
               </div>
             </div>
 
+            <div className="glass-strong rounded-xl p-6 card-3d interactive animate-fade-in stagger-5">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                  <Code className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">{totalCodingSessions}</div>
+                  <div className="text-slate-400 text-sm">Coding Sessions</div>
+                </div>
+              </div>
+            </div>
 
           </div>
 
