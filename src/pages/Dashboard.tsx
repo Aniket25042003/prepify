@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Clock, LogOut, MessageCircle, Trash2, Calendar, User, BookOpen, Briefcase, Play, TrendingUp, Target, Award, Zap, Code, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { supabase, InterviewSession } from '../lib/supabase'
+import { supabase, InterviewSession, CodingSession } from '../lib/supabase'
 import { StarBorder } from '../components/ui/star-border'
 
 const codingPlatforms = [
@@ -68,33 +68,45 @@ export function Dashboard() {
     jobDescription: '',
     additionalNotes: ''
   })
-  const [allSessions, setAllSessions] = useState<InterviewSession[]>([])
+  const [interviewSessions, setInterviewSessions] = useState<InterviewSession[]>([])
+  const [codingSessions, setCodingSessions] = useState<CodingSession[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (user) {
-      loadSessions()
+      loadData()
     }
   }, [user])
 
-  const loadSessions = async () => {
+  const loadData = async () => {
     try {
-      const { data, error } = await supabase
+      // Load interview sessions
+      const { data: interviewData, error: interviewError } = await supabase
         .from('interview_sessions')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      setAllSessions(data || [])
+      if (interviewError) throw interviewError
+      setInterviewSessions(interviewData || [])
+
+      // Load coding sessions
+      const { data: codingData, error: codingError } = await supabase
+        .from('coding_sessions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if (codingError) throw codingError
+      setCodingSessions(codingData || [])
     } catch (error) {
-      console.error('Error loading sessions:', error)
+      console.error('Error loading data:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const deleteSession = async (id: string) => {
+  const deleteInterviewSession = async (id: string) => {
     try {
       const { error } = await supabase
         .from('interview_sessions')
@@ -103,9 +115,24 @@ export function Dashboard() {
         .eq('user_id', user?.id)
 
       if (error) throw error
-      setAllSessions(sessions => sessions.filter(session => session.id !== id))
+      setInterviewSessions(sessions => sessions.filter(session => session.id !== id))
     } catch (error) {
-      console.error('Error deleting session:', error)
+      console.error('Error deleting interview session:', error)
+    }
+  }
+
+  const deleteCodingSession = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('coding_sessions')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user?.id)
+
+      if (error) throw error
+      setCodingSessions(sessions => sessions.filter(session => session.id !== id))
+    } catch (error) {
+      console.error('Error deleting coding session:', error)
     }
   }
 
@@ -113,18 +140,25 @@ export function Dashboard() {
     try {
       // Record the coding session
       const { error } = await supabase
-        .from('interview_sessions')
+        .from('coding_sessions')
         .insert({
           user_id: user?.id,
-          session_type: 'coding',
           platform_name: platform.name,
           platform_url: platform.url
         })
 
       if (error) throw error
 
-      // Reload sessions to update the count
-      await loadSessions()
+      // Reload coding sessions to update the count
+      const { data: codingData } = await supabase
+        .from('coding_sessions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if (codingData) {
+        setCodingSessions(codingData)
+      }
 
       // Open the platform in a new tab
       window.open(platform.url, '_blank')
@@ -175,15 +209,11 @@ export function Dashboard() {
     }
   }
 
-  // Filter sessions by type
-  const interviewSessions = allSessions.filter(session => session.session_type === 'interview')
-  const codingSessions = allSessions.filter(session => session.session_type === 'coding')
-
   // Calculate metrics
   const totalInterviews = interviewSessions.length
   const totalCodingSessions = codingSessions.length
-  const avgDuration = totalInterviews > 0 ? Math.round(interviewSessions.reduce((acc, session) => acc + (session.duration || 0), 0) / totalInterviews) : 0
-  const interviewTypes = new Set(interviewSessions.map(s => s.interview_type).filter(Boolean)).size
+  const avgDuration = totalInterviews > 0 ? Math.round(interviewSessions.reduce((acc, session) => acc + session.duration, 0) / totalInterviews) : 0
+  const interviewTypes = new Set(interviewSessions.map(s => s.interview_type)).size
   
   // Interview frequency (interviews this month)
   const thisMonth = new Date()
@@ -509,7 +539,7 @@ export function Dashboard() {
               ) : (
                 <div className="grid gap-6">
                   {interviewSessions.map((session, index) => {
-                    const IconComponent = getInterviewTypeIcon(session.interview_type || '')
+                    const IconComponent = getInterviewTypeIcon(session.interview_type)
                     
                     return (
                       <div
@@ -545,7 +575,7 @@ export function Dashboard() {
                           </div>
                           
                           <button
-                            onClick={() => deleteSession(session.id)}
+                            onClick={() => deleteInterviewSession(session.id)}
                             aria-label="Delete session"
                             className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all duration-200 p-2 hover:bg-slate-700/50 rounded-lg interactive"
                           >
@@ -612,7 +642,7 @@ export function Dashboard() {
                               <ExternalLink className="h-4 w-4" />
                             </button>
                             <button
-                              onClick={() => deleteSession(session.id)}
+                              onClick={() => deleteCodingSession(session.id)}
                               aria-label="Delete session"
                               className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all duration-200 p-2 hover:bg-slate-700/50 rounded-lg interactive"
                             >
