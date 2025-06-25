@@ -65,23 +65,20 @@ export type FigureTopicPrompt = {
 export type InterviewSession = {
   id: string
   user_id: string
-  role: string
-  company: string
-  interview_type: 'Technical' | 'Behavioral' | 'System Design'
-  duration: number
-  resume: string
-  job_description: string
-  additional_notes: string
-  summary: string
-  created_at: string
+  session_type: 'interview' | 'coding'
+  // Interview-specific fields (nullable for coding sessions)
+  role?: string
+  company?: string
+  interview_type?: 'Technical' | 'Behavioral' | 'System Design'
+  duration?: number
+  resume?: string
+  job_description?: string
+  additional_notes?: string
+  summary?: string
   score?: number
-}
-
-export type CodingSession = {
-  id: string
-  user_id: string
-  platform_name: string
-  platform_url: string
+  // Coding-specific fields (nullable for interview sessions)
+  platform_name?: string
+  platform_url?: string
   created_at: string
 }
 
