@@ -1,10 +1,10 @@
 <!-- Created with CodDoc - AI-powered README generator -->
 
-# Prepify
+# Prepwiser
 
 ## Description
 
-Prepify is a web application designed to facilitate interview preparation and practice. It leverages real-time communication capabilities, AI-powered analysis, and interactive UI components to provide a comprehensive platform for users to enhance their interview skills. The application appears to integrate features like user authentication, real-time video/audio communication, interview recording, AI-driven analysis, and interactive UI elements.
+Prepwiser is a web application designed to facilitate interview preparation and practice. It leverages real-time communication capabilities, AI-powered analysis, and interactive UI components to provide a comprehensive platform for users to enhance their interview skills. The application appears to integrate features like user authentication, real-time video/audio communication, interview recording, AI-driven analysis, and interactive UI elements.
 
 ## Features
 
@@ -19,13 +19,13 @@ Prepify is a web application designed to facilitate interview preparation and pr
 
 ## Installation
 
-To run Prepify locally, follow these steps:
+To run Prepwiser locally, follow these steps:
 
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/Aniket25042003/prepify.git
-    cd prepify
+    git clone https://github.com/Aniket25042003/prepwiser.git
+    cd prepwiser
     ```
 
 2.  **Install dependencies:**

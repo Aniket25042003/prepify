@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { Briefcase, Sparkles, Users, BookOpen, ArrowRight, Target, Brain, TrendingUp, Zap, Award, CheckCircle } from 'lucide-react'
+import { Users, Target, Brain, TrendingUp, Zap, Award, CheckCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { Navigate } from 'react-router-dom'
 import { AuthModal } from '../components/AuthModal'
@@ -82,10 +82,14 @@ export function LandingPage() {
           <nav className="flex items-center justify-between animate-fade-in">
             <div className="flex items-center space-x-2 float">
               <div className="relative">
-                <Briefcase className="h-8 w-8 text-purple-400 pulse-glow" />
+                <img 
+                  src="src/public/Prepwiser.png" 
+                  alt="Prepwiser Logo" 
+                  className="h-8 w-8 object-contain pulse-glow"
+                />
                 <div className="absolute inset-0 bg-purple-400 rounded-full blur-lg opacity-20 animate-pulse"></div>
               </div>
-              <span className="text-xl font-bold font-serif neon-glow">AI Interview Prep</span>
+              <span className="text-xl font-bold font-serif neon-glow">Prepwiser</span>
             </div>
             <div className="flex items-center space-x-4">
               <StarBorder
@@ -210,7 +214,7 @@ export function LandingPage() {
         {/* Features Section */}
         <section className="relative z-10 container mx-auto px-6 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold font-serif mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Why Choose AI Interview Prep?</h2>
+            <h2 className="text-4xl font-bold font-serif mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Why Choose Prepwiser?</h2>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto">
               Experience the future of interview preparation with cutting-edge AI technology
             </p>
@@ -239,7 +243,7 @@ export function LandingPage() {
           <div className="text-center glass-strong rounded-3xl p-12 card-3d">
             <h2 className="text-4xl font-bold font-serif mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Ready to Land Your Dream Job?</h2>
             <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-              Join thousands of successful candidates who've used AI Interview Prep to ace their interviews
+              Join thousands of successful candidates who've used Prepwiser to ace their interviews
             </p>
             <StarBorder
               as="button"

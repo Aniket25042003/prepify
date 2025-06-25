@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Clock, LogOut, MessageCircle, Trash2, Calendar, User, BookOpen, Briefcase, Play, TrendingUp, Target, Award, Zap, Code, ExternalLink } from 'lucide-react'
+import { Clock, LogOut, MessageCircle, Trash2, Calendar, User, BookOpen, Play, TrendingUp, Target, Award, Zap, Code, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { supabase, InterviewSession, CodingSession } from '../lib/supabase'
+import { supabase, InterviewSession } from '../lib/supabase'
 import { StarBorder } from '../components/ui/star-border'
 
 const codingPlatforms = [
@@ -69,7 +69,6 @@ export function Dashboard() {
     additionalNotes: ''
   })
   const [interviewSessions, setInterviewSessions] = useState<InterviewSession[]>([])
-  const [codingSessions, setCodingSessions] = useState<CodingSession[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -90,15 +89,7 @@ export function Dashboard() {
       if (interviewError) throw interviewError
       setInterviewSessions(interviewData || [])
 
-      // Load coding sessions
-      const { data: codingData, error: codingError } = await supabase
-        .from('coding_sessions')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
 
-      if (codingError) throw codingError
-      setCodingSessions(codingData || [])
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
@@ -121,20 +112,7 @@ export function Dashboard() {
     }
   }
 
-  const deleteCodingSession = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('coding_sessions')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user?.id)
 
-      if (error) throw error
-      setCodingSessions(sessions => sessions.filter(session => session.id !== id))
-    } catch (error) {
-      console.error('Error deleting coding session:', error)
-    }
-  }
 
   const handleCodingPlatformClick = async (platform: typeof codingPlatforms[0]) => {
     try {
@@ -149,16 +127,7 @@ export function Dashboard() {
 
       if (error) throw error
 
-      // Reload coding sessions to update the count
-      const { data: codingData } = await supabase
-        .from('coding_sessions')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-
-      if (codingData) {
-        setCodingSessions(codingData)
-      }
+      // Note: Coding session recorded but not tracked in UI
 
       // Open the platform in a new tab
       window.open(platform.url, '_blank')
@@ -211,7 +180,6 @@ export function Dashboard() {
 
   // Calculate metrics
   const totalInterviews = interviewSessions.length
-  const totalCodingSessions = codingSessions.length
   const avgDuration = totalInterviews > 0 ? Math.round(interviewSessions.reduce((acc, session) => acc + session.duration, 0) / totalInterviews) : 0
   const interviewTypes = new Set(interviewSessions.map(s => s.interview_type)).size
   
@@ -251,10 +219,14 @@ export function Dashboard() {
             <div className="flex items-center justify-between animate-fade-in">
               <div className="flex items-center space-x-2 float">
                 <div className="relative">
-                  <Briefcase className="h-8 w-8 text-purple-400 pulse-glow" />
+                  <img 
+                    src="src/public/Prepwiser.png" 
+                    alt="Prepwiser Logo" 
+                    className="h-8 w-8 object-contain pulse-glow"
+                  />
                   <div className="absolute inset-0 bg-purple-400 rounded-full blur-lg opacity-20 animate-pulse"></div>
                 </div>
-                <span className="text-xl font-bold font-serif neon-glow">AI Interview Prep</span>
+                <span className="text-xl font-bold font-serif neon-glow">Prepwiser</span>
               </div>
               
               <div className="flex items-center space-x-4">
@@ -292,7 +264,7 @@ export function Dashboard() {
           </div>
 
           {/* Comprehensive Metrics */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <div className="glass-strong rounded-xl p-6 card-3d interactive animate-fade-in stagger-1">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -341,23 +313,13 @@ export function Dashboard() {
               </div>
             </div>
 
-            <div className="glass-strong rounded-xl p-6 card-3d interactive animate-fade-in stagger-5">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                  <Code className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-white">{totalCodingSessions}</div>
-                  <div className="text-slate-400 text-sm">Coding Sessions</div>
-                </div>
-              </div>
-            </div>
+
           </div>
 
           {/* Practice Cards */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+          <div className="flex flex-col lg:flex-row gap-8 mb-12">
             {/* Interview Setup */}
-            <div className="glass-strong rounded-2xl p-8 border border-slate-700/30 card-3d animate-scale-in">
+            <div className="lg:w-[65%] glass-strong rounded-2xl p-8 border border-slate-700/30 card-3d animate-scale-in">
               <h2 className="text-2xl font-semibold mb-6 font-serif text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Start a New Interview Practice</h2>
               
               <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -477,7 +439,7 @@ export function Dashboard() {
             </div>
 
             {/* Coding Practice */}
-            <div className="glass-strong rounded-2xl p-8 border border-slate-700/30 card-3d animate-scale-in">
+            <div className="lg:w-[35%] glass-strong rounded-2xl p-8 border border-slate-700/30 card-3d animate-scale-in">
               <h2 className="text-2xl font-semibold mb-6 font-serif text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Start a New Coding Practice</h2>
               
               <p className="text-slate-300 text-center mb-6">
@@ -511,19 +473,13 @@ export function Dashboard() {
                 ))}
               </div>
 
-              <div className="mt-6 glass rounded-lg p-4 text-center">
-                <p className="text-slate-400 text-sm">
-                  💡 Each platform visit is tracked in your coding session history
-                </p>
-              </div>
+
             </div>
           </div>
 
-          {/* History Sections */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Interview History */}
-            <div>
-              <h2 className="text-3xl font-bold font-serif mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Your Interview History</h2>
+          {/* Interview History Section - Moved to middle */}
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold font-serif mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Your Interview History</h2>
               
               {loading ? (
                 <div className="text-center py-12">
@@ -537,7 +493,7 @@ export function Dashboard() {
                   <p className="text-slate-400">Start your first interview practice to begin building your skills!</p>
                 </div>
               ) : (
-                <div className="grid gap-6">
+                <div className="max-w-4xl mx-auto grid gap-6">
                   {interviewSessions.map((session, index) => {
                     const IconComponent = getInterviewTypeIcon(session.interview_type)
                     
@@ -592,70 +548,6 @@ export function Dashboard() {
                   })}
                 </div>
               )}
-            </div>
-
-            {/* Coding Session History */}
-            <div>
-              <h2 className="text-3xl font-bold font-serif mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Your Coding Session History</h2>
-              
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="spinner-3d mx-auto mb-4"></div>
-                  <p className="text-slate-300">Loading your coding history...</p>
-                </div>
-              ) : codingSessions.length === 0 ? (
-                <div className="text-center py-12 glass-strong rounded-2xl border border-slate-700/30 animate-fade-in">
-                  <Code className="h-16 w-16 text-slate-500 mx-auto mb-4 float" />
-                  <h3 className="text-xl font-semibold mb-2">No coding sessions yet</h3>
-                  <p className="text-slate-400">Start practicing on coding platforms to track your progress!</p>
-                </div>
-              ) : (
-                <div className="grid gap-4">
-                  {codingSessions.map((session, index) => {
-                    const platform = codingPlatforms.find(p => p.name === session.platform_name)
-                    
-                    return (
-                      <div
-                        key={session.id}
-                        className={`glass-strong rounded-xl p-4 border border-slate-700/30 card-3d group animate-fade-in stagger-${(index % 4) + 1}`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className={`w-10 h-10 bg-gradient-to-r ${platform?.color || 'from-gray-500 to-gray-600'} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                              <Code className="h-5 w-5 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-blue-400">{session.platform_name}</h3>
-                              <div className="flex items-center space-x-2 text-sm text-slate-400">
-                                <Calendar className="h-4 w-4" />
-                                <span>{formatDate(session.created_at)}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => window.open(session.platform_url, '_blank')}
-                              className="text-slate-400 hover:text-blue-400 transition-colors p-2 hover:bg-slate-700/50 rounded-lg interactive"
-                              title="Visit platform"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => deleteCodingSession(session.id)}
-                              aria-label="Delete session"
-                              className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all duration-200 p-2 hover:bg-slate-700/50 rounded-lg interactive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
           </div>
         </main>
       </div>

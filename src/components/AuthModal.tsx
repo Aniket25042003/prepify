@@ -111,7 +111,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold font-serif mb-2 text-gradient">
-            Welcome to AI Interview Prep
+            Welcome to Prepwiser
           </h2>
           <p className="text-slate-400">
             Sign in with Google to start practicing interviews
