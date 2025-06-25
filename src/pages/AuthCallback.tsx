@@ -71,7 +71,7 @@ export function AuthCallback() {
             setMessage('Google sign-in successful! Redirecting to dashboard...')
             
             setTimeout(() => {
-              navigate('https://prepwiser.netlify.app/dashboard')
+              navigate('/dashboard')
             }, 2000)
             return
           } else {

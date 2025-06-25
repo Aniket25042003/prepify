@@ -94,10 +94,10 @@ export function ChatPage() {
         }
       }
       
-      // Always navigate back to dashboard after showing the feedback
-      setTimeout(() => {
-        navigate('https://prepwiser.netlify.app/dashboard')
-      }, 5000) // Increased to 5 seconds to give users time to read the feedback
+              // Always navigate back to dashboard after showing the feedback
+        setTimeout(() => {
+          navigate('/dashboard')
+        }, 3000)
     } catch (error) {
       console.error('Error ending interview:', error)
     } finally {
