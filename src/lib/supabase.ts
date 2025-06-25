@@ -77,6 +77,14 @@ export type InterviewSession = {
   score?: number
 }
 
+export type CodingSession = {
+  id: string
+  user_id: string
+  platform_name: string
+  platform_url: string
+  created_at: string
+}
+
 export type UserSettings = {
   id: string
   user_id: string

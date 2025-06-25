@@ -1,9 +1,60 @@
 import React, { useState, useEffect } from 'react'
-import { Clock, LogOut, MessageCircle, Trash2, Calendar, User, BookOpen, Briefcase, Play, TrendingUp, Target, Award, Zap } from 'lucide-react'
+import { Clock, LogOut, MessageCircle, Trash2, Calendar, User, BookOpen, Briefcase, Play, TrendingUp, Target, Award, Zap, Code, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { supabase, InterviewSession } from '../lib/supabase'
+import { supabase, InterviewSession, CodingSession } from '../lib/supabase'
 import { StarBorder } from '../components/ui/star-border'
+
+const codingPlatforms = [
+  {
+    name: 'LeetCode',
+    url: 'https://leetcode.com',
+    description: 'Popular coding interview preparation platform',
+    color: 'from-orange-500 to-orange-600'
+  },
+  {
+    name: 'HackerRank',
+    url: 'https://hackerrank.com',
+    description: 'Coding challenges and skill assessments',
+    color: 'from-green-500 to-green-600'
+  },
+  {
+    name: 'CodeSignal',
+    url: 'https://codesignal.com',
+    description: 'Technical interviews and coding assessments',
+    color: 'from-blue-500 to-blue-600'
+  },
+  {
+    name: 'Codeforces',
+    url: 'https://codeforces.com',
+    description: 'Competitive programming contests',
+    color: 'from-red-500 to-red-600'
+  },
+  {
+    name: 'AtCoder',
+    url: 'https://atcoder.jp',
+    description: 'Japanese competitive programming platform',
+    color: 'from-purple-500 to-purple-600'
+  },
+  {
+    name: 'TopCoder',
+    url: 'https://topcoder.com',
+    description: 'Competitive programming and development challenges',
+    color: 'from-yellow-500 to-yellow-600'
+  },
+  {
+    name: 'Codewars',
+    url: 'https://codewars.com',
+    description: 'Coding kata and programming challenges',
+    color: 'from-indigo-500 to-indigo-600'
+  },
+  {
+    name: 'GeeksforGeeks',
+    url: 'https://practice.geeksforgeeks.org',
+    description: 'Programming practice and interview preparation',
+    color: 'from-teal-500 to-teal-600'
+  }
+]
 
 export function Dashboard() {
   const { user, signOut } = useAuth()
@@ -18,32 +69,44 @@ export function Dashboard() {
     additionalNotes: ''
   })
   const [interviewSessions, setInterviewSessions] = useState<InterviewSession[]>([])
+  const [codingSessions, setCodingSessions] = useState<CodingSession[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (user) {
-      loadInterviewSessions()
+      loadData()
     }
   }, [user])
 
-  const loadInterviewSessions = async () => {
+  const loadData = async () => {
     try {
-      const { data, error } = await supabase
+      // Load interview sessions
+      const { data: interviewData, error: interviewError } = await supabase
         .from('interview_sessions')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      setInterviewSessions(data || [])
+      if (interviewError) throw interviewError
+      setInterviewSessions(interviewData || [])
+
+      // Load coding sessions
+      const { data: codingData, error: codingError } = await supabase
+        .from('coding_sessions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if (codingError) throw codingError
+      setCodingSessions(codingData || [])
     } catch (error) {
-      console.error('Error loading interview sessions:', error)
+      console.error('Error loading data:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const deleteSession = async (id: string) => {
+  const deleteInterviewSession = async (id: string) => {
     try {
       const { error } = await supabase
         .from('interview_sessions')
@@ -54,7 +117,55 @@ export function Dashboard() {
       if (error) throw error
       setInterviewSessions(sessions => sessions.filter(session => session.id !== id))
     } catch (error) {
-      console.error('Error deleting session:', error)
+      console.error('Error deleting interview session:', error)
+    }
+  }
+
+  const deleteCodingSession = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('coding_sessions')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user?.id)
+
+      if (error) throw error
+      setCodingSessions(sessions => sessions.filter(session => session.id !== id))
+    } catch (error) {
+      console.error('Error deleting coding session:', error)
+    }
+  }
+
+  const handleCodingPlatformClick = async (platform: typeof codingPlatforms[0]) => {
+    try {
+      // Record the coding session
+      const { error } = await supabase
+        .from('coding_sessions')
+        .insert({
+          user_id: user?.id,
+          platform_name: platform.name,
+          platform_url: platform.url
+        })
+
+      if (error) throw error
+
+      // Reload coding sessions to update the count
+      const { data: codingData } = await supabase
+        .from('coding_sessions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if (codingData) {
+        setCodingSessions(codingData)
+      }
+
+      // Open the platform in a new tab
+      window.open(platform.url, '_blank')
+    } catch (error) {
+      console.error('Error recording coding session:', error)
+      // Still open the platform even if recording fails
+      window.open(platform.url, '_blank')
     }
   }
 
@@ -100,6 +211,7 @@ export function Dashboard() {
 
   // Calculate metrics
   const totalInterviews = interviewSessions.length
+  const totalCodingSessions = codingSessions.length
   const avgDuration = totalInterviews > 0 ? Math.round(interviewSessions.reduce((acc, session) => acc + session.duration, 0) / totalInterviews) : 0
   const interviewTypes = new Set(interviewSessions.map(s => s.interview_type)).size
   
@@ -180,7 +292,7 @@ export function Dashboard() {
           </div>
 
           {/* Comprehensive Metrics */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
             <div className="glass-strong rounded-xl p-6 card-3d interactive animate-fade-in stagger-1">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -228,10 +340,23 @@ export function Dashboard() {
                 </div>
               </div>
             </div>
+
+            <div className="glass-strong rounded-xl p-6 card-3d interactive animate-fade-in stagger-5">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                  <Code className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">{totalCodingSessions}</div>
+                  <div className="text-slate-400 text-sm">Coding Sessions</div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Interview Setup */}
-          <div className="max-w-4xl mx-auto mb-12">
+          {/* Practice Cards */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+            {/* Interview Setup */}
             <div className="glass-strong rounded-2xl p-8 border border-slate-700/30 card-3d animate-scale-in">
               <h2 className="text-2xl font-semibold mb-6 font-serif text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Start a New Interview Practice</h2>
               
@@ -350,79 +475,187 @@ export function Dashboard() {
                 </div>
               </StarBorder>
             </div>
+
+            {/* Coding Practice */}
+            <div className="glass-strong rounded-2xl p-8 border border-slate-700/30 card-3d animate-scale-in">
+              <h2 className="text-2xl font-semibold mb-6 font-serif text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Start a New Coding Practice</h2>
+              
+              <p className="text-slate-300 text-center mb-6">
+                Practice your coding skills on popular platforms to prepare for technical interviews
+              </p>
+
+              <div className="grid grid-cols-1 gap-4">
+                {codingPlatforms.map((platform, index) => (
+                  <button
+                    key={platform.name}
+                    onClick={() => handleCodingPlatformClick(platform)}
+                    className={`glass rounded-lg p-4 border border-slate-700/30 hover:border-slate-600/50 transition-all duration-300 interactive animate-fade-in stagger-${(index % 4) + 1} group`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-10 h-10 bg-gradient-to-r ${platform.color} rounded-lg flex items-center justify-center`}>
+                          <Code className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="font-semibold text-white group-hover:text-purple-300 transition-colors">
+                            {platform.name}
+                          </h3>
+                          <p className="text-sm text-slate-400">
+                            {platform.description}
+                          </p>
+                        </div>
+                      </div>
+                      <ExternalLink className="h-5 w-5 text-slate-400 group-hover:text-purple-300 transition-colors" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-6 glass rounded-lg p-4 text-center">
+                <p className="text-slate-400 text-sm">
+                  💡 Each platform visit is tracked in your coding session history
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Interview History */}
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold font-serif mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Your Interview History</h2>
-            
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="spinner-3d mx-auto mb-4"></div>
-                <p className="text-slate-300">Loading your interview history...</p>
-              </div>
-            ) : interviewSessions.length === 0 ? (
-              <div className="text-center py-12 glass-strong rounded-2xl border border-slate-700/30 animate-fade-in">
-                <BookOpen className="h-16 w-16 text-slate-500 mx-auto mb-4 float" />
-                <h3 className="text-xl font-semibold mb-2">No interview sessions yet</h3>
-                <p className="text-slate-400">Start your first interview practice to begin building your skills!</p>
-              </div>
-            ) : (
-              <div className="grid gap-6">
-                {interviewSessions.map((session, index) => {
-                  const IconComponent = getInterviewTypeIcon(session.interview_type)
-                  
-                  return (
-                    <div
-                      key={session.id}
-                      className={`glass-strong rounded-xl p-6 border border-slate-700/30 card-3d group animate-fade-in stagger-${(index % 4) + 1}`}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-start space-x-4 flex-1">
-                          <div className={`w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0`}>
-                            <IconComponent className="h-6 w-6 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
-                              <h3 className="text-lg font-semibold text-purple-400">{session.role}</h3>
-                              <span className="text-slate-500">•</span>
-                              <span className="text-slate-300 text-sm">{session.company}</span>
-                              <span className="text-slate-500">•</span>
-                              <span className={`text-sm px-2 py-1 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 text-white`}>
-                                {session.interview_type}
-                              </span>
+          {/* History Sections */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Interview History */}
+            <div>
+              <h2 className="text-3xl font-bold font-serif mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-300 dark:to-orange-200">Your Interview History</h2>
+              
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="spinner-3d mx-auto mb-4"></div>
+                  <p className="text-slate-300">Loading your interview history...</p>
+                </div>
+              ) : interviewSessions.length === 0 ? (
+                <div className="text-center py-12 glass-strong rounded-2xl border border-slate-700/30 animate-fade-in">
+                  <BookOpen className="h-16 w-16 text-slate-500 mx-auto mb-4 float" />
+                  <h3 className="text-xl font-semibold mb-2">No interview sessions yet</h3>
+                  <p className="text-slate-400">Start your first interview practice to begin building your skills!</p>
+                </div>
+              ) : (
+                <div className="grid gap-6">
+                  {interviewSessions.map((session, index) => {
+                    const IconComponent = getInterviewTypeIcon(session.interview_type)
+                    
+                    return (
+                      <div
+                        key={session.id}
+                        className={`glass-strong rounded-xl p-6 border border-slate-700/30 card-3d group animate-fade-in stagger-${(index % 4) + 1}`}
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-start space-x-4 flex-1">
+                            <div className={`w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                              <IconComponent className="h-6 w-6 text-white" />
                             </div>
-                            <div className="flex items-center space-x-4 text-sm text-slate-400">
-                              <div className="flex items-center space-x-1">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <h3 className="text-lg font-semibold text-purple-400">{session.role}</h3>
+                                <span className="text-slate-500">•</span>
+                                <span className="text-slate-300 text-sm">{session.company}</span>
+                                <span className="text-slate-500">•</span>
+                                <span className={`text-sm px-2 py-1 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 text-white`}>
+                                  {session.interview_type}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-4 text-sm text-slate-400">
+                                <div className="flex items-center space-x-1">
+                                  <Calendar className="h-4 w-4" />
+                                  <span>{formatDate(session.created_at)}</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Clock className="h-4 w-4" />
+                                  <span>{session.duration} minutes</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <button
+                            onClick={() => deleteInterviewSession(session.id)}
+                            aria-label="Delete session"
+                            className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all duration-200 p-2 hover:bg-slate-700/50 rounded-lg interactive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                        
+                        <div className="text-slate-200 leading-relaxed">
+                          <p className="mb-2">{session.summary}</p>
+                          <p className="text-sm text-slate-400 italic">💡 Detailed feedback was provided during the interview session</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Coding Session History */}
+            <div>
+              <h2 className="text-3xl font-bold font-serif mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Your Coding Session History</h2>
+              
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="spinner-3d mx-auto mb-4"></div>
+                  <p className="text-slate-300">Loading your coding history...</p>
+                </div>
+              ) : codingSessions.length === 0 ? (
+                <div className="text-center py-12 glass-strong rounded-2xl border border-slate-700/30 animate-fade-in">
+                  <Code className="h-16 w-16 text-slate-500 mx-auto mb-4 float" />
+                  <h3 className="text-xl font-semibold mb-2">No coding sessions yet</h3>
+                  <p className="text-slate-400">Start practicing on coding platforms to track your progress!</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {codingSessions.map((session, index) => {
+                    const platform = codingPlatforms.find(p => p.name === session.platform_name)
+                    
+                    return (
+                      <div
+                        key={session.id}
+                        className={`glass-strong rounded-xl p-4 border border-slate-700/30 card-3d group animate-fade-in stagger-${(index % 4) + 1}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className={`w-10 h-10 bg-gradient-to-r ${platform?.color || 'from-gray-500 to-gray-600'} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                              <Code className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-blue-400">{session.platform_name}</h3>
+                              <div className="flex items-center space-x-2 text-sm text-slate-400">
                                 <Calendar className="h-4 w-4" />
                                 <span>{formatDate(session.created_at)}</span>
                               </div>
-                              <div className="flex items-center space-x-1">
-                                <Clock className="h-4 w-4" />
-                                <span>{session.duration} minutes</span>
-                              </div>
                             </div>
                           </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => window.open(session.platform_url, '_blank')}
+                              className="text-slate-400 hover:text-blue-400 transition-colors p-2 hover:bg-slate-700/50 rounded-lg interactive"
+                              title="Visit platform"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => deleteCodingSession(session.id)}
+                              aria-label="Delete session"
+                              className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all duration-200 p-2 hover:bg-slate-700/50 rounded-lg interactive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
-                        
-                        <button
-                          onClick={() => deleteSession(session.id)}
-                          aria-label="Delete session"
-                          className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all duration-200 p-2 hover:bg-slate-700/50 rounded-lg interactive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </div>
-                      
-                      <div className="text-slate-200 leading-relaxed">
-                        <p className="mb-2">{session.summary}</p>
-                        <p className="text-sm text-slate-400 italic">💡 Detailed feedback was provided during the interview session</p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </main>
       </div>
