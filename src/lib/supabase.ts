@@ -20,7 +20,7 @@ try {
   new URL(supabaseUrl)
 } catch (error) {
   throw new Error(
-    `Invalid VITE_SUPABASE_URL format: ${supabaseUrl}. Please ensure it's a valid URL.`
+    `Invalid VITE_SUPABASE_URL format: ${supabaseUrl}. Please ensure it's a valid URL. Error: ${error}`
   )
 }
 
@@ -74,7 +74,6 @@ export type InterviewSession = {
   additional_notes: string
   summary: string
   created_at: string
-  score?: number
 }
 
 export type CodingSession = {
