@@ -83,7 +83,7 @@ export function LandingPage() {
             <div className="flex items-center space-x-2 float">
               <div className="relative">
                 <img 
-                  src="src/public/Prepwiser.png" 
+                  src="/Prepwiser.png" 
                   alt="Prepwiser Logo" 
                   className="h-8 w-8 object-contain pulse-glow"
                 />
@@ -119,8 +119,8 @@ export function LandingPage() {
           ctaText="Start Practicing Now"
           ctaAction={() => setShowAuthModal(true)}
           bottomImage={{
-            light: "src/public/hero_image.png",
-            dark: "src/public/hero_image.png"
+            light: "/hero_image.png",
+            dark: "/hero_image.png"
           }}
           gridOptions={{
             angle: 65,

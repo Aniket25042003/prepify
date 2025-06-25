@@ -220,7 +220,7 @@ export function Dashboard() {
               <div className="flex items-center space-x-2 float">
                 <div className="relative">
                   <img 
-                    src="src/public/Prepwiser.png" 
+                    src="/Prepwiser.png" 
                     alt="Prepwiser Logo" 
                     className="h-8 w-8 object-contain pulse-glow"
                   />
