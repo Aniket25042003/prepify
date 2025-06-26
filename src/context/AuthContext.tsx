@@ -7,6 +7,7 @@ import {
   signOut as authSignOut
 } from '../lib/auth'
 import { AuthState, AuthResponse } from '../types/auth'
+import { analytics } from '../lib/analytics'
 
 interface AuthContextType extends AuthState {
   signInWithGoogle: () => Promise<AuthResponse>
@@ -52,11 +53,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleSignInWithGoogle = async (): Promise<AuthResponse> => {
     const response = await signInWithGoogle()
+    analytics.signUp('google')
     return response
   }
 
   const handleSignInWithGitHub = async (): Promise<AuthResponse> => {
     const response = await signInWithGitHub()
+    analytics.signUp('github')
     return response
   }
 

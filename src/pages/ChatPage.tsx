@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 import { useConversation } from '../hooks/useConversation'
 import { AvatarDisplay } from '../components/AvatarDisplay'
 import { StarBorder } from '../components/ui/star-border'
+import { analytics } from '../lib/analytics'
 
 export function ChatPage() {
   const [searchParams] = useSearchParams()
@@ -24,6 +25,7 @@ export function ChatPage() {
   const additionalNotes = searchParams.get('additionalNotes') || ''
 
   const handleStartInterview = async () => {
+    analytics.startInterview(interviewType)
     if (!user || !role || !company || !interviewType || !resume || !jobDescription) return
 
     try {

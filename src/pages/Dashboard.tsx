@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { supabase, InterviewSession, CodingSession } from '../lib/supabase'
 import { StarBorder } from '../components/ui/star-border'
+import { analytics } from '../lib/analytics'
 
 const codingPlatforms = [
   {
@@ -76,6 +77,7 @@ export function Dashboard() {
     if (user) {
       loadData()
     }
+    analytics.viewDashboard()
   }, [user])
 
   const loadData = async () => {
@@ -122,9 +124,9 @@ export function Dashboard() {
     }
   }
 
-
-
   const handleCodingPlatformClick = async (platform: typeof codingPlatforms[0]) => {
+    analytics.clickCodingPlatform(platform.name)
+    
     try {
       // Record the coding session
       const { error } = await supabase
