@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { Users, Target, Brain, TrendingUp, Zap, Award, CheckCircle } from 'lucide-react'
+import { Users, Target, Brain, TrendingUp, Zap, Award, CheckCircle, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { Navigate } from 'react-router-dom'
 import { AuthModal } from '../components/AuthModal'
@@ -92,6 +92,25 @@ export function LandingPage() {
               <span className="text-xl font-bold font-serif neon-glow">Prepwiser</span>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Bolt.new Badge */}
+              <a 
+                href="https://bolt.new/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 glass px-3 py-2 rounded-lg border border-slate-700/30 hover:border-slate-600/50 transition-all duration-300 interactive group"
+                title="Built with Bolt.new"
+              >
+                <img 
+                  src="/bolt.svg" 
+                  alt="Bolt.new" 
+                  className="h-5 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
+                />
+                <span className="text-sm text-slate-300 group-hover:text-white transition-colors">
+                  Built with Bolt
+                </span>
+                <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-purple-300 transition-colors" />
+              </a>
+              
               <StarBorder
                 as="button"
                 onClick={() => setShowAuthModal(true)}
@@ -260,9 +279,71 @@ export function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="relative z-10 container mx-auto px-6 py-8 border-t border-slate-700/30">
-          <div className="text-center text-slate-400">
-            <p>Built with Bolt.new • Powered by AI, Tavus, LiveKit, and Supabase</p>
+        <footer className="relative z-10 container mx-auto px-6 py-12 border-t border-slate-700/30">
+          <div className="text-center">
+            {/* Partner Logos */}
+            <div className="mb-8">
+              <p className="text-slate-400 text-sm mb-6">Powered by industry-leading technologies</p>
+              <div className="flex items-center justify-center space-x-8 md:space-x-12">
+                <a 
+                  href="https://supabase.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="opacity-60 hover:opacity-100 transition-opacity duration-300 interactive"
+                  title="Supabase"
+                >
+                  <img 
+                    src="/supabase.svg" 
+                    alt="Supabase" 
+                    className="h-8 w-auto filter brightness-0 invert"
+                  />
+                </a>
+                <a 
+                  href="https://netlify.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="opacity-60 hover:opacity-100 transition-opacity duration-300 interactive"
+                  title="Netlify"
+                >
+                  <img 
+                    src="/netlify.svg" 
+                    alt="Netlify" 
+                    className="h-8 w-auto filter brightness-0 invert"
+                  />
+                </a>
+                <a 
+                  href="https://tavus.io" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="opacity-60 hover:opacity-100 transition-opacity duration-300 interactive"
+                  title="Tavus"
+                >
+                  <img 
+                    src="/tavus.svg" 
+                    alt="Tavus" 
+                    className="h-8 w-auto filter brightness-0 invert"
+                  />
+                </a>
+                <a 
+                  href="https://bolt.new" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="opacity-60 hover:opacity-100 transition-opacity duration-300 interactive"
+                  title="Bolt.new"
+                >
+                  <img 
+                    src="/bolt.svg" 
+                    alt="Bolt.new" 
+                    className="h-8 w-auto filter brightness-0 invert"
+                  />
+                </a>
+              </div>
+            </div>
+            
+            {/* Copyright */}
+            <div className="text-slate-400 text-sm">
+              <p>© 2024 Prepwiser. Built with cutting-edge AI technology.</p>
+            </div>
           </div>
         </footer>
       </div>
