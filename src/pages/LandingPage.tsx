@@ -342,7 +342,7 @@ export function LandingPage() {
             
             {/* Copyright */}
             <div className="text-slate-400 text-sm">
-              <p>© 2024 Prepwiser. Built with cutting-edge AI technology.</p>
+              <p>© 2025 Prepwiser. Built with cutting-edge AI technology.</p>
             </div>
           </div>
         </footer>
