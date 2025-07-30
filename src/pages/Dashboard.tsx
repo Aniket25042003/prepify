@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LogOut, User, BarChart3, MessageSquare, Code2 } from 'lucide-react'
+import { LogOut, User, BarChart3, MessageSquare, Code2, HelpCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase, InterviewSession, CodingSession } from '../lib/supabase'
@@ -234,6 +234,12 @@ export function Dashboard() {
       label: 'Coding Practice',
       icon: Code2,
       description: 'Practice coding on popular platforms'
+    },
+    {
+      id: 'qa-session',
+      label: 'Q&A Session',
+      icon: HelpCircle,
+      description: 'Upload resume and job description for personalized Q&A practice'
     }
   ]
 
@@ -352,6 +358,108 @@ export function Dashboard() {
               codingPlatforms={codingPlatforms}
               onCodingPlatformClick={handleCodingPlatformClick}
             />
+          )}
+
+          {activeTab === 'qa-session' && (
+            <div className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold mb-4 text-gradient">Q&A Session</h2>
+                <p className="text-slate-400 mb-8">Upload your resume and job description for personalized interview questions</p>
+              </div>
+
+              <div className="glass-strong rounded-2xl p-8 border border-slate-700/30 card-3d animate-fade-in">
+                <div className="text-center space-y-6">
+                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mx-auto flex items-center justify-center">
+                    <HelpCircle className="h-12 w-12 text-white" />
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-4">Coming Soon!</h3>
+                    <p className="text-slate-300 text-lg mb-6">
+                      We're working hard to bring you personalized Q&A sessions for your interviews.
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6 text-left">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">1</span>
+                        </div>
+                        <h4 className="font-semibold text-white">Upload Resume</h4>
+                      </div>
+                      <p className="text-slate-400 text-sm ml-11">
+                        Upload your resume and we'll analyze your experience, skills, and background.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">2</span>
+                        </div>
+                        <h4 className="font-semibold text-white">Job Description</h4>
+                      </div>
+                      <p className="text-slate-400 text-sm ml-11">
+                        Provide the job description to understand the role requirements and company context.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">3</span>
+                        </div>
+                        <h4 className="font-semibold text-white">Personalized Q&A</h4>
+                      </div>
+                      <p className="text-slate-400 text-sm ml-11">
+                        Get tailored questions and suggested answers based on your profile and the job requirements.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 p-6 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl border border-purple-500/20">
+                    <h4 className="text-lg font-semibold text-white mb-3">What to Expect</h4>
+                    <ul className="text-slate-300 space-y-2 text-sm">
+                      <li className="flex items-start space-x-2">
+                        <span className="text-purple-400 mt-1">•</span>
+                        <span>Behavioral questions based on your experience</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="text-purple-400 mt-1">•</span>
+                        <span>Technical questions relevant to the role</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="text-purple-400 mt-1">•</span>
+                        <span>Company-specific questions and culture fit</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="text-purple-400 mt-1">•</span>
+                        <span>Suggested answers and talking points</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="text-purple-400 mt-1">•</span>
+                        <span>Practice mode with AI feedback</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-6">
+                    <StarBorder
+                      as="button"
+                      disabled
+                      className="w-full opacity-50 cursor-not-allowed"
+                      color="rgb(168, 85, 247)"
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <HelpCircle className="h-5 w-5" />
+                        <span>Coming Soon - Stay Tuned!</span>
+                      </div>
+                    </StarBorder>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </main>
       </div>
