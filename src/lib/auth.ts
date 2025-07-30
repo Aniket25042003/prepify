@@ -34,7 +34,7 @@ export async function signInWithGoogle(): Promise<AuthResponse> {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `http://localhost:5173/auth/callback`,
+        redirectTo: `https://kcijmwltuoztxjuwcjqc.supabase.co/auth/v1/callback`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -72,7 +72,7 @@ export async function signInWithGitHub(): Promise<AuthResponse> {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `http://localhost:5173/auth/callback`
+        redirectTo: `https://kcijmwltuoztxjuwcjqc.supabase.co/auth/v1/callback`
       }
     })
 
