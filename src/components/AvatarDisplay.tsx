@@ -95,7 +95,7 @@ export function AvatarDisplay({
           console.error('This might be due to missing Tavus configuration or network issues')
         }}
         onLoad={() => {
-          console.log('Avatar iframe loaded successfully for URL:', avatarUrl)
+  
         }}
       />
       

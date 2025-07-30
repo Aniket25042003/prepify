@@ -12,7 +12,7 @@ export function ChatPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { state, startConversation, toggleRecording, toggleVideo, endConversation, generateConversationSummary } = useConversation()
+  const { state, startConversation, toggleRecording, toggleVideo, endConversation } = useConversation()
   const [conversationSummary, setConversationSummary] = useState('')
 
   const role = searchParams.get('role') || ''
@@ -29,18 +29,7 @@ export function ChatPage() {
 
     try {
       // Save interview session immediately when starting
-      console.log('Saving interview session on start...', {
-        user_id: user.id,
-        role,
-        company,
-        interview_type: interviewType,
-        duration,
-        resume,
-        job_description: jobDescription,
-        additional_notes: additionalNotes
-      })
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('interview_sessions')
         .insert({
           user_id: user.id,
@@ -53,12 +42,9 @@ export function ChatPage() {
           additional_notes: additionalNotes,
           summary: `Started ${interviewType} interview for ${role} position at ${company}. Session duration: ${duration} minutes.`
         })
-        .select()
 
       if (error) {
         console.error('Error saving interview session on start:', error)
-      } else {
-        console.log('Successfully saved interview session on start:', data)
       }
 
       // Start the conversation

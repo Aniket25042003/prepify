@@ -238,7 +238,7 @@ export class TavusService {
       )
       
       if (activeConversations.length > 0) {
-        console.log(`Ended ${activeConversations.length} active conversations`)
+        // Ended active conversations
       }
     } catch (error) {
       console.warn('Error ending active conversations:', error)

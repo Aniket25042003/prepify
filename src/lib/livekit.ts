@@ -65,17 +65,14 @@ export class LiveKitService {
 
       // Set up event listeners
       this.room.on(RoomEvent.ParticipantConnected, (participant: RemoteParticipant) => {
-        console.log('Participant connected:', participant.identity)
         this.onParticipantConnected?.(participant)
       })
 
       this.room.on(RoomEvent.TrackSubscribed, (track: RemoteTrack, publication: RemoteTrackPublication, participant: RemoteParticipant) => {
-        console.log('Track subscribed:', track.kind)
         this.onTrackSubscribed?.(track, publication, participant)
       })
 
       this.room.on(RoomEvent.Disconnected, () => {
-        console.log('Disconnected from room')
         this.onDisconnected?.()
       })
 
