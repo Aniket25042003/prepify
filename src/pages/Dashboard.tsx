@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LogOut, User, BarChart3, MessageSquare, Code2, HelpCircle } from 'lucide-react'
+import { LogOut, User, BarChart3, MessageSquare, Code2, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase, InterviewSession, CodingSession } from '../lib/supabase'
@@ -237,8 +237,8 @@ export function Dashboard() {
     },
     {
       id: 'qa-session',
-      label: 'Q&A Session',
-      icon: HelpCircle,
+      label: 'Q&A Practice',
+      icon: Sparkles,
       description: 'Upload resume and job description for personalized Q&A practice'
     }
   ]
@@ -363,14 +363,14 @@ export function Dashboard() {
           {activeTab === 'qa-session' && (
             <div className="space-y-8">
               <div className="text-center">
-                <h2 className="text-3xl font-bold mb-4 text-gradient">Q&A Session</h2>
+                <h2 className="text-3xl font-bold mb-4 text-gradient">Q&A Practice</h2>
                 <p className="text-slate-400 mb-8">Upload your resume and job description for personalized interview questions</p>
               </div>
 
               <div className="glass-strong rounded-2xl p-8 border border-slate-700/30 card-3d animate-fade-in">
                 <div className="text-center space-y-6">
                   <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mx-auto flex items-center justify-center">
-                    <HelpCircle className="h-12 w-12 text-white" />
+                    <Sparkles className="h-12 w-12 text-white" />
                   </div>
                   
                   <div>
@@ -452,7 +452,7 @@ export function Dashboard() {
                       color="rgb(168, 85, 247)"
                     >
                       <div className="flex items-center justify-center space-x-2">
-                        <HelpCircle className="h-5 w-5" />
+                        <Sparkles className="h-5 w-5" />
                         <span>Coming Soon - Stay Tuned!</span>
                       </div>
                     </StarBorder>
