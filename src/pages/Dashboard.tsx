@@ -92,6 +92,8 @@ export function Dashboard() {
 
   const loadData = async () => {
     try {
+      console.log('Loading data for user:', user?.id)
+      
       // Load interview sessions
       const { data: interviewData, error: interviewError } = await supabase
         .from('interview_sessions')
@@ -99,7 +101,12 @@ export function Dashboard() {
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
 
-      if (interviewError) throw interviewError
+      if (interviewError) {
+        console.error('Error loading interview sessions:', interviewError)
+        throw interviewError
+      }
+      
+      console.log('Interview sessions loaded:', interviewData)
       setInterviewSessions(interviewData || [])
 
       // Load coding sessions
@@ -109,7 +116,12 @@ export function Dashboard() {
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
 
-      if (codingError) throw codingError
+      if (codingError) {
+        console.error('Error loading coding sessions:', codingError)
+        throw codingError
+      }
+      
+      console.log('Coding sessions loaded:', codingData)
       setCodingSessions(codingData || [])
 
     } catch (error) {

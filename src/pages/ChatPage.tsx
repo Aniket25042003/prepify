@@ -73,7 +73,19 @@ export function ChatPage() {
       // Save to interview sessions
       if (user) {
         try {
-          const { error } = await supabase
+          console.log('Attempting to save interview session...', {
+            user_id: user.id,
+            role,
+            company,
+            interview_type: interviewType,
+            duration,
+            resume,
+            job_description: jobDescription,
+            additional_notes: additionalNotes,
+            summary: summary
+          })
+
+          const { data, error } = await supabase
             .from('interview_sessions')
             .insert({
               user_id: user.id,
@@ -86,11 +98,19 @@ export function ChatPage() {
               additional_notes: additionalNotes,
               summary: summary
             })
+            .select()
 
-          if (error) throw error
+          if (error) {
+            console.error('Supabase error saving interview session:', error)
+            throw error
+          }
+
+          console.log('Successfully saved interview session:', data)
         } catch (error) {
           console.error('Error saving interview session:', error)
         }
+      } else {
+        console.error('No user found when trying to save interview session')
       }
       
       // Always navigate back to dashboard after showing the feedback
