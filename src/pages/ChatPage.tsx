@@ -28,6 +28,40 @@ export function ChatPage() {
     if (!user || !role || !company || !interviewType || !resume || !jobDescription) return
 
     try {
+      // Save interview session immediately when starting
+      console.log('Saving interview session on start...', {
+        user_id: user.id,
+        role,
+        company,
+        interview_type: interviewType,
+        duration,
+        resume,
+        job_description: jobDescription,
+        additional_notes: additionalNotes
+      })
+
+      const { data, error } = await supabase
+        .from('interview_sessions')
+        .insert({
+          user_id: user.id,
+          role,
+          company,
+          interview_type: interviewType,
+          duration,
+          resume,
+          job_description: jobDescription,
+          additional_notes: additionalNotes,
+          summary: `Started ${interviewType} interview for ${role} position at ${company}. Session duration: ${duration} minutes.`
+        })
+        .select()
+
+      if (error) {
+        console.error('Error saving interview session on start:', error)
+      } else {
+        console.log('Successfully saved interview session on start:', data)
+      }
+
+      // Start the conversation
       await startConversation({
         role,
         company,
@@ -45,75 +79,19 @@ export function ChatPage() {
 
     const handleEndInterview = async () => {
     try {
-      // Generate interview summary from Tavus if available
-      let result = { summary: '', score: null, analysis: null }
+      // Generate fallback summary since Tavus API might not be available
+      const summary = generateFallbackSummary(role, company, interviewType, state.sessionDuration || duration * 60)
+      
+      // End the conversation
       try {
-        const generatedResult = await generateConversationSummary(role, company, interviewType)
-        result = generatedResult || { 
-          summary: generateFallbackSummary(role, company, interviewType, state.sessionDuration),
-          score: null,
-          analysis: null
-        }
+        await endConversation()
       } catch (error) {
-        console.warn('Could not generate Tavus summary, using fallback:', error)
-        result = {
-          summary: generateFallbackSummary(role, company, interviewType, state.sessionDuration),
-          score: null,
-          analysis: null
-        }
+        console.warn('Could not end conversation properly:', error)
       }
       
-      // End the interview after getting the summary
-      await endConversation()
-      
-      const summary = result.summary || generateFallbackSummary(role, company, interviewType, state.sessionDuration)
       setConversationSummary(summary)
-      // No longer setting score and analysis since feedback is provided during interview
       
-      // Save to interview sessions
-      if (user) {
-        try {
-          console.log('Attempting to save interview session...', {
-            user_id: user.id,
-            role,
-            company,
-            interview_type: interviewType,
-            duration,
-            resume,
-            job_description: jobDescription,
-            additional_notes: additionalNotes,
-            summary: summary
-          })
-
-          const { data, error } = await supabase
-            .from('interview_sessions')
-            .insert({
-              user_id: user.id,
-              role,
-              company,
-              interview_type: interviewType,
-              duration,
-              resume,
-              job_description: jobDescription,
-              additional_notes: additionalNotes,
-              summary: summary
-            })
-            .select()
-
-          if (error) {
-            console.error('Supabase error saving interview session:', error)
-            throw error
-          }
-
-          console.log('Successfully saved interview session:', data)
-        } catch (error) {
-          console.error('Error saving interview session:', error)
-        }
-      } else {
-        console.error('No user found when trying to save interview session')
-      }
-      
-      // Always navigate back to dashboard after showing the feedback
+      // Navigate back to dashboard after showing the feedback
       setTimeout(() => {
         navigate('/dashboard')
       }, 3000)
