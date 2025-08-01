@@ -85,9 +85,8 @@ export function LandingPage() {
                 <img 
                   src="/favicon.svg" 
                   alt="Prepwiser Logo" 
-                  className="h-8 w-8 object-contain pulse-glow"
+                  className="h-8 w-8 object-contain"
                 />
-                <div className="absolute inset-0 bg-purple-400 rounded-full blur-lg opacity-20 animate-pulse"></div>
               </div>
               <span className="text-xl font-bold font-serif neon-glow">Prepwiser</span>
             </div>
