@@ -83,7 +83,7 @@ export function LandingPage() {
             <div className="flex items-center space-x-2 float">
               <div className="relative">
                 <img 
-                  src="/Prepwiser.png" 
+                  src="/favicon.svg" 
                   alt="Prepwiser Logo" 
                   className="h-8 w-8 object-contain pulse-glow"
                 />
