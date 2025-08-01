@@ -1,1 +1,8 @@
-/*    /index.html   200 
+# Handle client-side routing for React Router
+/*    /index.html   200
+
+# Ensure dashboard tabs are properly handled
+/dashboard    /index.html   200
+/mock-interview    /index.html   200
+/coding-practice    /index.html   200
+/qa-session    /index.html   200 

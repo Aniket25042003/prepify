@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { LogOut, User, BarChart3, MessageSquare, Code2, Sparkles } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase, InterviewSession, CodingSession } from '../lib/supabase'
 import { StarBorder } from '../components/ui/star-border'
 import { analytics } from '../lib/analytics'
 import { DashboardStats } from './DashboardStats'
 import { MockInterview } from './MockInterview'
 import { CodePractice } from './CodePractice'
+import { BarChart3, MessageSquare, Code2, Sparkles, User, LogOut } from 'lucide-react'
 
 const codingPlatforms = [
   {
@@ -63,12 +63,14 @@ const codingPlatforms = [
 export function Dashboard() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
   const [activeTab, setActiveTab] = useState(() => {
-    const tabFromUrl = searchParams.get('tab')
-    return tabFromUrl && ['dashboard', 'mock-interview', 'coding-practice'].includes(tabFromUrl) 
-      ? tabFromUrl 
-      : 'dashboard'
+    // Extract tab from URL path
+    const path = location.pathname
+    if (path === '/mock-interview') return 'mock-interview'
+    if (path === '/coding-practice') return 'coding-practice'
+    if (path === '/qa-session') return 'qa-session'
+    return 'dashboard' // default
   })
   const [formData, setFormData] = useState({
     role: '',
@@ -82,6 +84,15 @@ export function Dashboard() {
   const [interviewSessions, setInterviewSessions] = useState<InterviewSession[]>([])
   const [codingSessions, setCodingSessions] = useState<CodingSession[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Update active tab when URL changes
+  useEffect(() => {
+    const path = location.pathname
+    if (path === '/mock-interview') setActiveTab('mock-interview')
+    else if (path === '/coding-practice') setActiveTab('coding-practice')
+    else if (path === '/qa-session') setActiveTab('qa-session')
+    else if (path === '/dashboard') setActiveTab('dashboard')
+  }, [location.pathname])
 
   useEffect(() => {
     if (user) {
@@ -313,7 +324,7 @@ export function Dashboard() {
                       key={tab.id}
                       onClick={() => {
                         setActiveTab(tab.id)
-                        setSearchParams({ tab: tab.id })
+                        navigate(`/${tab.id}`)
                       }}
                       className={`flex items-center space-x-3 px-6 py-3 rounded-lg transition-all duration-300 ${
                         activeTab === tab.id

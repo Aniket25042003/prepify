@@ -38,6 +38,30 @@ function AppContent() {
         } 
       />
       <Route 
+        path="/mock-interview" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/coding-practice" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/qa-session" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/chat" 
         element={
           <ProtectedRoute>
